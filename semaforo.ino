@@ -1,0 +1,28 @@
+#define ROJO 2
+#define AMARILLO 3
+#define VERDE 4
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode (ROJO, OUTPUT);
+  pinMode (AMARILLO, OUTPUT);
+  pinMode (VERDE, OUTPUT);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  digitalWrite (ROJO, HIGH);
+  delay (3000);
+  digitalWrite (AMARILLO, HIGH);
+  delay (1000);
+  digitalWrite (ROJO, LOW);
+  digitalWrite (AMARILLO, LOW);
+  delay (500);
+  digitalWrite (VERDE, HIGH);
+  delay (3000);
+  digitalWrite (VERDE, LOW);
+  digitalWrite (AMARILLO, HIGH);
+  delay (1000);
+  digitalWrite (AMARILLO, LOW);
+  delay (50);
+}
