@@ -1,1 +1,0 @@
-Estas en la clase de hoy? No te veo xd
