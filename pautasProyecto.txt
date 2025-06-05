@@ -1,7 +1,0 @@
-Codigo
-Diagrama
-Explicado y funcionando
-
-Se evalua el uso de la herramienta: 
-	Los commit
-	Quien levanto que y cuando

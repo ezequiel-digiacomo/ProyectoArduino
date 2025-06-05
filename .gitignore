@@ -1,0 +1,5 @@
+# Ignorar la carpeta de configuración de VS Code
+.vscode/
+
+# Ignorar la carpeta de Laboratorio
+laboratorio/
