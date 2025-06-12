@@ -8,38 +8,63 @@ LiquidCrystal_I2C digitalLCD(0x27, 16, 2); // col: columnas del 0 al 15 - row: f
 unsigned long tiempoRestante = 5UL * 60UL * 1000UL;
 unsigned long lastMillis = 0;
 bool botonPresionado = false;
-bool textoFijoEscrito = false;
+bool banderaMensaje = false;
+int vidas = 3;
 
 void setup() {
   digitalLCD.begin(16, 2);
   pinMode(botonPin, INPUT_PULLUP); 
   mostrarTiempo();
-  mostrarVidas();
 }
 
 void loop() {
   unsigned long actualMillis = millis();
+  
+  if(!banderaMensaje){
+    
+    mostrarVidas(vidas);
 
-  if (actualMillis - lastMillis >= 1000 && tiempoRestante > 0) {
-    tiempoRestante -= 1000;
-    lastMillis = actualMillis;
-    mostrarTiempo();
-  }
-
-  // Si detecta el Boton Presionado significa que esta en estado LOW
-  if (digitalRead(botonPin) == LOW && !botonPresionado) {
-    botonPresionado = true;
-    if (tiempoRestante >= 15000) {
-      tiempoRestante -= 15000;
-    } else {
-      tiempoRestante = 0;
+    if (actualMillis - lastMillis >= 1000 && tiempoRestante > 0) {
+      tiempoRestante -= 1000;
+      lastMillis = actualMillis;
+      mostrarTiempo();
     }
-    mostrarTiempo();
+
+    // Si detecta el Boton Presionado significa que esta en estado LOW
+    if (digitalRead(botonPin) == LOW && !botonPresionado) {
+      botonPresionado = true;
+      if (tiempoRestante >= 15000) {
+        tiempoRestante -= 15000;
+      } else {
+        tiempoRestante = 0;
+      }
+      mostrarTiempo();
+    }
+
+    if (digitalRead(botonPin) == HIGH) {
+      botonPresionado = false;
+    }
+
   }
 
-  if (digitalRead(botonPin) == HIGH) {
-    botonPresionado = false;
+  if (tiempoRestante == 0 && !banderaMensaje) {
+    digitalLCD.clear();
+    digitalLCD.setCursor(0, 0);
+    digitalLCD.print("Perdiste! :( :(");
+    digitalLCD.setCursor(0, 1);
+    digitalLCD.print(" No hay Tiempo");
+    banderaMensaje = true;
   }
+
+  if (vidas == 0 && !banderaMensaje) {
+    digitalLCD.clear();
+    digitalLCD.setCursor(0, 0);
+    digitalLCD.print("Perdiste! :( :(");
+    digitalLCD.setCursor(0, 1);
+    digitalLCD.print("  No hay Vidas");
+    banderaMensaje = true;
+  }
+
 }
 
 void mostrarTiempo() {
@@ -60,7 +85,15 @@ void mostrarTiempo() {
   digitalLCD.print(segundos);
 }
 
-void mostrarVidas() {
+void mostrarVidas(int vidas) {
   digitalLCD.setCursor(0, 1);
-  digitalLCD.print(" Vidas <3 <3 <3");
-}// El archivo quedó vacío jia
+  digitalLCD.print(" Vidas ");
+
+  for (int i = 0; i < vidas; i++) {
+    digitalLCD.print("<3 ");
+  }
+
+  for (int i = vidas; i < 3; i++) {
+    digitalLCD.print("   ");
+  }
+}
