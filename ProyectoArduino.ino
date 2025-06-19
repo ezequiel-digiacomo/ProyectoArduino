@@ -124,7 +124,6 @@ void setup() {
   //----------------------------simon dice----------------------------------
   for (int i = 0; i < 4; i++) pinMode(BUTTONS[i], INPUT);
   pinMode(BUZZER_PIN, OUTPUT);
-  randomSeed(analogRead(A0));
   startNewRound();
   //----------------------------simon dice----------------------------------
 
