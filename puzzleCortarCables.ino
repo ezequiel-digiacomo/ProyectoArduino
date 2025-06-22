@@ -8,12 +8,11 @@
 #define CABLE_1 4
 #define CABLE_2 5
 #define CABLE_3 6
-#define LED_PIN 13
 
 // LED RGB
-#define LED_R 9
-#define LED_G 10
-#define LED_B 11
+#define redPin 9
+#define greenPin 10
+#define bluePin 11
 
 // aliasLCD
 LiquidCrystal_I2C digitalLCD(0x27, 16, 2);
@@ -49,9 +48,9 @@ void setup() {
   pinMode(CABLE_3, INPUT_PULLUP);
 
   // LED RGB como salida
-  pinMode(LED_R, OUTPUT);
-  pinMode(LED_G, OUTPUT);
-  pinMode(LED_B, OUTPUT);
+  pinMode(redPin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+  pinMode(bluePin, OUTPUT);
 
   // https://docs.arduino.cc/language-reference/en/functions/random-numbers/random/
   randomSeed(analogRead(0)); // Si el pin analógico 0 está desconectado, el ruido hace que randomSeed() genere números random
@@ -64,9 +63,9 @@ void setup() {
   digitalLCD.print(valorRandom);
 
   // Luz azul indica que esta a la espera del usuario
-  digitalWrite(LED_R, LOW);
-  digitalWrite(LED_G, LOW);
-  digitalWrite(LED_B, HIGH);
+  digitalWrite(redPin, LOW);
+  digitalWrite(greenPin, LOW);
+  digitalWrite(bluePin, HIGH);
 }
 
 void loop() {
@@ -78,16 +77,16 @@ void loop() {
     pasoActual++; // Actualizo el contador
     
     // Luz verde indica corte correcto
-    digitalWrite(LED_R, LOW);
-    digitalWrite(LED_G, HIGH);
-    digitalWrite(LED_B, LOW);
+    digitalWrite(redPin, LOW);
+    digitalWrite(greenPin, HIGH);
+    digitalWrite(bluePin, LOW);
 
     delay(500); // TODO: Cambiar por millis
 
     // Luz azul indica que esta a la espera del usuario
-    digitalWrite(LED_R, LOW);
-    digitalWrite(LED_G, LOW);
-    digitalWrite(LED_B, HIGH);
+    digitalWrite(redPin, LOW);
+    digitalWrite(greenPin, LOW);
+    digitalWrite(bluePin, HIGH);
 
     // Checkea si el usuario gano
     if (pasoActual == 4) {
@@ -96,9 +95,9 @@ void loop() {
       digitalLCD.print("Desactivada!");
       
       // Luz verde
-      digitalWrite(LED_R, LOW);
-      digitalWrite(LED_G, HIGH);
-      digitalWrite(LED_B, LOW);
+      digitalWrite(redPin, LOW);
+      digitalWrite(greenPin, HIGH);
+      digitalWrite(bluePin, LOW);
       while (true) {/* nada */}
     }
   }
@@ -112,9 +111,9 @@ void loop() {
       digitalLCD.print("nt"); // Mensaje cuando explota
   		
       // Luz roja
-      digitalWrite(LED_R, HIGH);
-      digitalWrite(LED_G, LOW);
-      digitalWrite(LED_B, LOW);
+      digitalWrite(redPin, HIGH);
+      digitalWrite(greenPin, LOW);
+      digitalWrite(bluePin, LOW);
   		while (true) {/* nada */}
     }
   }
