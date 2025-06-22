@@ -1,9 +1,9 @@
-// https://www.tinkercad.com/things/eyVrCm9FVkO-cortar-cables?sharecode=5TrbO6dEMBiWb5AyjUhtVOFcYELgAcqe-cOzigVF5PI
+// https://wokwi.com/projects/434416853604919297
 
-#define CABLE_0 2
-#define CABLE_1 3
-#define CABLE_2 4
-#define CABLE_3 5
+#define CABLE_0 3
+#define CABLE_1 4
+#define CABLE_2 5
+#define CABLE_3 6
 #define LED_PIN 13
 
 long valorRandom;
@@ -44,7 +44,7 @@ void loop() {
 
   int pinEsperado = ordenCorrecto[valorRandom][pasoActual];
 
-  if (digitalRead(pinEsperado) == LOW) {
+  if (digitalRead(pinEsperado) == HIGH) {
     Serial.println("Cable correcto cortado");
     cableCortado[pasoActual] = true;
     pasoActual++; // Actualizo el contador
@@ -53,14 +53,12 @@ void loop() {
       Serial.println("Bomba desactivada!");
       while (true) {/* nada */}
     }
-
-    delay(200); // Para evitar doble lectura
   }
 
   // Reviso si se corto un cable fuera de orden
   for (int i = 0; i < 4; i++) {
     int pin = ordenCorrecto[valorRandom][i];
-    if (i != pasoActual && !cableCortado[i] && digitalRead(pin) == LOW) {
+    if (i != pasoActual && !cableCortado[i] && digitalRead(pin) == HIGH) {
     	Serial.println("nt"); // Mensaje cuando explota
   		digitalWrite(LED_PIN, HIGH);
   		while (true) {/* nada */}
