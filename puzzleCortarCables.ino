@@ -1,26 +1,36 @@
-// https://wokwi.com/projects/434416853604919297
+// https://wokwi.com/projects/434497090133072897
 
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
+// Cables
 #define CABLE_0 3
 #define CABLE_1 4
 #define CABLE_2 5
 #define CABLE_3 6
 #define LED_PIN 13
 
+// LED RGB
+#define LED_R 9
+#define LED_G 10
+#define LED_B 11
+
+// aliasLCD
 LiquidCrystal_I2C digitalLCD(0x27, 16, 2);
 
+// Variables
 long valorRandom;
-int i = 0;
 bool cableCortado[4] = {false, false, false, false};
+int pasoActual = 0;
+
+// Casos posibles
 int ordenCorrecto[4][4] = {
   {CABLE_0, CABLE_1, CABLE_2, CABLE_3}, // caso 0
   {CABLE_1, CABLE_3, CABLE_0, CABLE_2}, // caso 1
   {CABLE_3, CABLE_0, CABLE_2, CABLE_1}, // caso 2
   {CABLE_2, CABLE_0, CABLE_1, CABLE_3}  // caso 3
 };
-int pasoActual = 0;
+
 
 void setup() {
   // Inicializo el LCD
@@ -28,10 +38,7 @@ void setup() {
   digitalLCD.init();
   digitalLCD.backlight();
   digitalLCD.clear();
-  
-  // Conexion serial
-  Serial.begin(9600);
-  
+
   digitalLCD.setCursor(0,0);
   digitalLCD.print("Armada");
 
@@ -41,8 +48,10 @@ void setup() {
   pinMode(CABLE_2, INPUT_PULLUP);
   pinMode(CABLE_3, INPUT_PULLUP);
 
-  // Si la bomba explota, se prende el led integrado
-  pinMode(LED_PIN, OUTPUT);
+  // LED RGB como salida
+  pinMode(LED_R, OUTPUT);
+  pinMode(LED_G, OUTPUT);
+  pinMode(LED_B, OUTPUT);
 
   // https://docs.arduino.cc/language-reference/en/functions/random-numbers/random/
   randomSeed(analogRead(0)); // Si el pin analógico 0 está desconectado, el ruido hace que randomSeed() genere números random
@@ -53,24 +62,43 @@ void setup() {
   digitalLCD.print("El codigo es: ");
   digitalLCD.setCursor(14,1);
   digitalLCD.print(valorRandom);
-  //Serial.print("El codigo es: ");
-  //Serial.println(valorRandom);
+
+  // Luz azul indica que esta a la espera del usuario
+  digitalWrite(LED_R, LOW);
+  digitalWrite(LED_G, LOW);
+  digitalWrite(LED_B, HIGH);
 }
 
 void loop() {
-
   int pinEsperado = ordenCorrecto[valorRandom][pasoActual];
 
+  // Cable correcto
   if (digitalRead(pinEsperado) == HIGH) {
-    Serial.println("Cable correcto cortado");
     cableCortado[pasoActual] = true;
     pasoActual++; // Actualizo el contador
+    
+    // Luz verde indica corte correcto
+    digitalWrite(LED_R, LOW);
+    digitalWrite(LED_G, HIGH);
+    digitalWrite(LED_B, LOW);
 
+    delay(500); // TODO: Cambiar por millis
+
+    // Luz azul indica que esta a la espera del usuario
+    digitalWrite(LED_R, LOW);
+    digitalWrite(LED_G, LOW);
+    digitalWrite(LED_B, HIGH);
+
+    // Checkea si el usuario gano
     if (pasoActual == 4) {
       digitalLCD.clear();
       digitalLCD.setCursor(0,0);
       digitalLCD.print("Desactivada!");
-      // Serial.println("Bomba desactivada!");
+      
+      // Luz verde
+      digitalWrite(LED_R, LOW);
+      digitalWrite(LED_G, HIGH);
+      digitalWrite(LED_B, LOW);
       while (true) {/* nada */}
     }
   }
@@ -82,8 +110,11 @@ void loop() {
     	digitalLCD.clear();
       digitalLCD.setCursor(0,0);
       digitalLCD.print("nt"); // Mensaje cuando explota
-      //Serial.println("nt"); // Mensaje cuando explota
-  		digitalWrite(LED_PIN, HIGH);
+  		
+      // Luz roja
+      digitalWrite(LED_R, HIGH);
+      digitalWrite(LED_G, LOW);
+      digitalWrite(LED_B, LOW);
   		while (true) {/* nada */}
     }
   }
