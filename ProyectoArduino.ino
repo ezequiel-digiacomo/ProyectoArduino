@@ -105,7 +105,9 @@ int pasoActual = 0;
 /*--------------------------- cortar cables ----------------------------------*/
 
 void setup() {
-  digitalLCD.begin(16, 2);
+  digitalLCD.init();
+  digitalLCD.init();
+  digitalLCD.backlight();
   // Serial.begin(9600);
   
   // https://docs.arduino.cc/language-reference/en/functions/random-numbers/random/
