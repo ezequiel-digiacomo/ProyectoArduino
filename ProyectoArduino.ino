@@ -8,6 +8,8 @@
 // #define button 13
 const long colorDuration = 1000; 
 
+int contadorJuegos = 0;
+
 unsigned long previousMillis = 0;
 unsigned long auxPreviousMillis = 0;
 int colorIndex = 0;
@@ -173,87 +175,98 @@ void loop() {
       restarTiempo = actualMillis;
       mostrarEstado();
     }
-  //---------------------------rgb 1 boton----------------------------------
-  unsigned long auxCurrentMillis = actualMillis;
 
-  if(aux){
-    auxPreviousMillis = auxCurrentMillis;
-    aux = false;
-  }
-  if (auxCurrentMillis - auxPreviousMillis >= colorDuration) {
-
-  if(digitalRead(botonPin) != HIGH){
-  unsigned long currentMillis = actualMillis;
-  puzzle1LedRgbStatus = true;
-
-  if (currentMillis - previousMillis >= colorDuration) {
-
-    previousMillis = currentMillis;
-
-    colorIndex = colorIndex + 1;
-    if(colorIndex == 4){
-      colorIndex = 0;
-    }
-    
-    analogWrite(redPin, colors[colorIndex][0]);
-    analogWrite(greenPin, colors[colorIndex][1]);
-    analogWrite(bluePin, colors[colorIndex][2]);
-    currentColor[0] = colors[colorIndex][0];
-    currentColor[1] = colors[colorIndex][1];
-    currentColor[2] = colors[colorIndex][2];
-
-  }
-    if(currentColor[0] == colorWinner[0]&&currentColor[1] == colorWinner[1]&&currentColor[2] == colorWinner[2]){
-      // Serial.println("Ganaste");
-    }else{
-      // Serial.println("Perdiste");
-    }
-  }else{
-    if(puzzle1LedRgbStatus){
-
-    if(currentColor[0] == colorWinner[0]&&currentColor[1] == colorWinner[1]&&currentColor[2] == colorWinner[2]){
-      // Serial.println("Ganaste");
-      puzzle1LedRgbStatus = false;
-    }else{
-      // Serial.println("Perdiste");
-      analogWrite(redPin, 0);
-      analogWrite(greenPin, 0);
-      analogWrite(bluePin, 0);
-      vidas--;
-      puzzle1LedRgbStatus = false;
-    }
-    }
-  }
-  }
-
-  //---------------------------rgb 1 boton----------------------------------
-  //---------------------------simon dice----------------------------------
-  switch (gameState) {
-    case SHOW_SEQUENCE:
-      showSequence();
-      break;
-    case WAIT_INPUT:
-      readPlayerInput();
-      break;
-    case WAIT_SUCCESS_MELODY:
-      waitSuccessMelody();
-      break;
-    case PLAY_SUCCESS_MELODY:
-      playSuccessMelody();
-      break;
-    case LOSE:
-      handleErrorSound();
-      break;
-    case PAUSE_BEFORE_NEXT:
-      if (millis() - lastActionTime >= 800) {
-        startNewRound();
+    switch (contadorJuegos)
+    {
+    case 0:
+      //---------------------------rgb 1 boton----------------------------------
+      unsigned long auxCurrentMillis = actualMillis;
+      if(aux){
+        auxPreviousMillis = auxCurrentMillis;
+        aux = false;
       }
+      if (auxCurrentMillis - auxPreviousMillis >= colorDuration) {
+      
+      if(digitalRead(botonPin) != HIGH){
+      unsigned long currentMillis = actualMillis;
+      puzzle1LedRgbStatus = true;
+      
+      if (currentMillis - previousMillis >= colorDuration) {
+      
+        previousMillis = currentMillis;
+      
+        colorIndex = colorIndex + 1;
+        if(colorIndex == 4){
+          colorIndex = 0;
+        }
+      
+        analogWrite(redPin, colors[colorIndex][0]);
+        analogWrite(greenPin, colors[colorIndex][1]);
+        analogWrite(bluePin, colors[colorIndex][2]);
+        currentColor[0] = colors[colorIndex][0];
+        currentColor[1] = colors[colorIndex][1];
+        currentColor[2] = colors[colorIndex][2];
+      
+      }
+        if(currentColor[0] == colorWinner[0]&&currentColor[1] == colorWinner[1]&&currentColor[2] == colorWinner[2]){
+          // Serial.println("Ganaste");
+        }else{
+          // Serial.println("Perdiste");
+        }
+      }else{
+        if(puzzle1LedRgbStatus){
+        
+        if(currentColor[0] == colorWinner[0]&&currentColor[1] == colorWinner[1]&&currentColor[2] == colorWinner[2]){
+          // Serial.println("Ganaste");
+          puzzle1LedRgbStatus = false;
+        }else{
+          // Serial.println("Perdiste");
+          analogWrite(redPin, 0);
+          analogWrite(greenPin, 0);
+          analogWrite(bluePin, 0);
+          vidas--;
+          puzzle1LedRgbStatus = false;
+        }
+        }
+      }
+      }
+      //---------------------------rgb 1 boton----------------------------------
       break;
-  }
-  //---------------------------simon dice----------------------------------
-  
-     
-
+    
+    case 1
+      //---------------------------simon dice----------------------------------
+      switch (gameState) {
+        case SHOW_SEQUENCE:
+          showSequence();
+          break;
+        case WAIT_INPUT:
+          readPlayerInput();
+          break;
+        case WAIT_SUCCESS_MELODY:
+          waitSuccessMelody();
+          break;
+        case PLAY_SUCCESS_MELODY:
+          playSuccessMelody();
+          break;
+        case LOSE:
+          handleErrorSound();
+          break;
+        case PAUSE_BEFORE_NEXT:
+          if (millis() - lastActionTime >= 800) {
+            startNewRound();
+          }
+          break;
+      }
+      //---------------------------simon dice----------------------------------
+    
+    case 2
+      /*--------------------------- cortar cables ----------------------------------*/
+      cortarCables();
+      break;
+    
+    default:
+      break;
+    }
   }
 
   //=============== Finalizamos el Juego =============== 
@@ -523,7 +536,7 @@ void setColorByIndex(int index) {
 
 /*--------------------------- cortar cables ----------------------------------*/
 
-void cortar_cables() { // TODO: Cambiar los output serial por el display, agregar dificultades, restar vidas
+void cortarCables() { // TODO: Cambiar los output serial por el display, agregar dificultades, restar vidas
 
   int pinEsperado = ordenCorrecto[valorRandom][pasoActual];
 
