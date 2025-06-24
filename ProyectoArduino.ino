@@ -83,6 +83,17 @@ int dificultad = 1;
 bool juegoIniciado = false;
 bool aux = true;
 
+byte corazon[8] = {
+  0b00000,
+  0b01010,
+  0b11111,
+  0b11111,
+  0b11111,
+  0b01110,
+  0b00100,
+  0b00000
+};
+
 /*--------------------------- cortar cables ----------------------------------*/
 
 #define CABLE_0 3
@@ -108,7 +119,7 @@ void setup() {
   digitalLCD.init();
   digitalLCD.init();
   digitalLCD.backlight();
-  // Serial.begin(9600);
+  digitalLCD.createChar(0, corazon); 
   
   // https://docs.arduino.cc/language-reference/en/functions/random-numbers/random/
   randomSeed(analogRead(0)); // Si el pin analógico 0 está desconectado, el ruido hace que randomSeed() genere números random
@@ -155,12 +166,12 @@ void loop() {
   unsigned long actualMillis = millis();
 
   if (!juegoFinalizado) {
-    mostrarVidas(vidas);
+    mostrarEstado();
 
     if (actualMillis - restarTiempo >= 1000 && tiempoTotal > 0) {
       tiempoTotal -= 1000;
       restarTiempo = actualMillis;
-      mostrarTiempo();
+      mostrarEstado();
     }
   //---------------------------rgb 1 boton----------------------------------
   unsigned long auxCurrentMillis = actualMillis;
@@ -329,14 +340,14 @@ void seleccionarDificultad() {
     }
 
     digitalLCD.clear();
-    mostrarTiempo();
+    mostrarEstado();
   }
 
   if (digitalRead(botonPin) == HIGH) {
     estadoBotonMenu = false;
   }
 }
-
+/*
 void mostrarTiempo() {
   unsigned long segundosTotales = tiempoTotal / 1000;
   int minutos = segundosTotales / 60;
@@ -359,6 +370,32 @@ void mostrarVidas(int vidas) {
   }
   for (int i = vidas; i < 3; i++) {
     digitalLCD.print("   ");
+  }
+}
+*/
+
+void mostrarEstado() {
+  digitalLCD.setCursor(0, 0);
+
+  unsigned long segundosTotales = tiempoTotal / 1000;
+  int minutos = segundosTotales / 60;
+  int segundos = segundosTotales % 60;
+
+  if (minutos < 10) digitalLCD.print('0');
+  digitalLCD.print(minutos);
+  digitalLCD.print(':');
+  if (segundos < 10) digitalLCD.print('0');
+  digitalLCD.print(segundos);
+  
+  int columna = 5;
+  digitalLCD.setCursor(columna, 0);
+  digitalLCD.print(" <--> ");
+  for (int i = 0; i < vidas; i++) { //Con este For agregamos corazones
+    digitalLCD.write((uint8_t)0); 
+    digitalLCD.print(' ');  
+  }
+  for (int i = vidas; i < 3; i++) {
+    digitalLCD.print(' ');  
   }
 }
 
