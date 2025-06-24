@@ -1,6 +1,9 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
+// aliasLCD
+LiquidCrystal_I2C digitalLCD(0x27, 16, 2);
+
 //------------rgb 1 boton-------------
 #define redPin 9
 #define greenPin 10
@@ -72,9 +75,7 @@ unsigned long melodyStartTime = 0;
 //--------------simon dice-----------------
 
 #define botonPin 2
-#define potenciometroPin A0 
-
-LiquidCrystal_I2C digitalLCD(0x27, 16, 2);
+#define potenciometroPin A1
 
 unsigned long tiempoTotal;
 unsigned long restarTiempo = 0; 
@@ -109,9 +110,6 @@ byte corazon[8] = {
 #define greenPin 10
 #define bluePin 11
 
-// aliasLCD
-LiquidCrystal_I2C digitalLCD(0x27, 16, 2);
-
 // Variables
 long valorRandom;
 bool cableCortado[4] = {false, false, false, false};
@@ -123,7 +121,7 @@ int ordenCorrecto[4][4] = {
   {CABLE_1, CABLE_3, CABLE_0, CABLE_2}, // caso 1
   {CABLE_3, CABLE_0, CABLE_2, CABLE_1}, // caso 2
   {CABLE_2, CABLE_0, CABLE_1, CABLE_3}  // caso 3
-}
+};
 
 /*--------------------------- cortar cables ----------------------------------*/
 
@@ -165,12 +163,6 @@ void setup() {
   // https://docs.arduino.cc/language-reference/en/functions/random-numbers/random/
   randomSeed(analogRead(0)); // Si el pin analógico 0 está desconectado, el ruido hace que randomSeed() genere números random
   valorRandom = random(4); // Valor random entre 0 y 3
-  
-  // Muestro el valor random en el LCD
-  digitalLCD.setCursor(0,1);
-  digitalLCD.print("El codigo es: ");
-  digitalLCD.setCursor(14,1);
-  digitalLCD.print(valorRandom);
 
   // Luz azul indica que esta a la espera del usuario
   digitalWrite(redPin, LOW);
@@ -243,6 +235,7 @@ void loop() {
         if(currentColor[0] == colorWinner[0]&&currentColor[1] == colorWinner[1]&&currentColor[2] == colorWinner[2]){
           // Serial.println("Ganaste");
           puzzle1LedRgbStatus = false;
+          contadorJuegos++;
         }else{
           // Serial.println("Perdiste");
           analogWrite(redPin, 0);
@@ -257,7 +250,7 @@ void loop() {
       //---------------------------rgb 1 boton----------------------------------
       break;
     
-    case 1
+    case 1:
       //---------------------------simon dice----------------------------------
       switch (gameState) {
         case SHOW_SEQUENCE:
@@ -281,9 +274,10 @@ void loop() {
           }
           break;
       }
+      contadorJuegos++;
       //---------------------------simon dice----------------------------------
     
-    case 2
+    case 2:
       /*--------------------------- cortar cables ----------------------------------*/
       cortarCables();
       break;
@@ -563,6 +557,12 @@ void setColorByIndex(int index) {
 void cortarCables() { // TODO: Agregar dificultades
   // Se elige un modo al azar y se toma en cuenta los pasos a seguir
   int pinEsperado = ordenCorrecto[valorRandom][pasoActual];
+
+  // Muestro el valor random en el LCD
+  digitalLCD.setCursor(0,1);
+  digitalLCD.print("El codigo es: ");
+  digitalLCD.setCursor(14,1);
+  digitalLCD.print(valorRandom);
 
   // Cable correcto
   if (digitalRead(pinEsperado) == HIGH) {
