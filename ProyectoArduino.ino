@@ -98,22 +98,32 @@ byte corazon[8] = {
 
 /*--------------------------- cortar cables ----------------------------------*/
 
+// Cables
 #define CABLE_0 3
 #define CABLE_1 4
 #define CABLE_2 5
 #define CABLE_3 6
-#define LED_PIN 13
 
+// LED RGB
+#define redPin 9
+#define greenPin 10
+#define bluePin 11
+
+// aliasLCD
+LiquidCrystal_I2C digitalLCD(0x27, 16, 2);
+
+// Variables
 long valorRandom;
-int i = 0;
 bool cableCortado[4] = {false, false, false, false};
+int pasoActual = 0;
+
+// Casos posibles - orden esperado de los cables
 int ordenCorrecto[4][4] = {
   {CABLE_0, CABLE_1, CABLE_2, CABLE_3}, // caso 0
   {CABLE_1, CABLE_3, CABLE_0, CABLE_2}, // caso 1
   {CABLE_3, CABLE_0, CABLE_2, CABLE_1}, // caso 2
   {CABLE_2, CABLE_0, CABLE_1, CABLE_3}  // caso 3
-};
-int pasoActual = 0;
+}
 
 /*--------------------------- cortar cables ----------------------------------*/
 
@@ -122,9 +132,6 @@ void setup() {
   digitalLCD.init();
   digitalLCD.backlight();
   digitalLCD.createChar(0, corazon); 
-  
-  // https://docs.arduino.cc/language-reference/en/functions/random-numbers/random/
-  randomSeed(analogRead(0)); // Si el pin analógico 0 está desconectado, el ruido hace que randomSeed() genere números random
   
   pinMode(botonPin, INPUT_PULLUP);
   pinMode(potenciometroPin, INPUT);
@@ -143,16 +150,33 @@ void setup() {
   //----------------------------simon dice----------------------------------
 
   /*--------------------------- cortar cables ----------------------------------*/
-  pinMode(CABLE_0, INPUT);
-  pinMode(CABLE_1, INPUT);
-  pinMode(CABLE_2, INPUT);
-  pinMode(CABLE_3, INPUT);
-  
+
+  // Configuracion de pines
+  pinMode(CABLE_0, INPUT_PULLUP);
+  pinMode(CABLE_1, INPUT_PULLUP);
+  pinMode(CABLE_2, INPUT_PULLUP);
+  pinMode(CABLE_3, INPUT_PULLUP);
+
+  // LED RGB como salida
+  pinMode(redPin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
+  pinMode(bluePin, OUTPUT);
+
+  // https://docs.arduino.cc/language-reference/en/functions/random-numbers/random/
+  randomSeed(analogRead(0)); // Si el pin analógico 0 está desconectado, el ruido hace que randomSeed() genere números random
   valorRandom = random(4); // Valor random entre 0 y 3
   
-  // Muestro el valor random en el serial
-  // Serial.print("El codigo es: ");
-  // Serial.println(valorRandom);
+  // Muestro el valor random en el LCD
+  digitalLCD.setCursor(0,1);
+  digitalLCD.print("El codigo es: ");
+  digitalLCD.setCursor(14,1);
+  digitalLCD.print(valorRandom);
+
+  // Luz azul indica que esta a la espera del usuario
+  digitalWrite(redPin, LOW);
+  digitalWrite(greenPin, LOW);
+  digitalWrite(bluePin, HIGH);
+
   /*--------------------------- cortar cables ----------------------------------*/
 }
 
@@ -186,27 +210,27 @@ void loop() {
         aux = false;
       }
       if (auxCurrentMillis - auxPreviousMillis >= colorDuration) {
-      
+
       if(digitalRead(botonPin) != HIGH){
       unsigned long currentMillis = actualMillis;
       puzzle1LedRgbStatus = true;
-      
+
       if (currentMillis - previousMillis >= colorDuration) {
-      
+
         previousMillis = currentMillis;
-      
+
         colorIndex = colorIndex + 1;
         if(colorIndex == 4){
           colorIndex = 0;
         }
-      
+
         analogWrite(redPin, colors[colorIndex][0]);
         analogWrite(greenPin, colors[colorIndex][1]);
         analogWrite(bluePin, colors[colorIndex][2]);
         currentColor[0] = colors[colorIndex][0];
         currentColor[1] = colors[colorIndex][1];
         currentColor[2] = colors[colorIndex][2];
-      
+
       }
         if(currentColor[0] == colorWinner[0]&&currentColor[1] == colorWinner[1]&&currentColor[2] == colorWinner[2]){
           // Serial.println("Ganaste");
@@ -215,7 +239,7 @@ void loop() {
         }
       }else{
         if(puzzle1LedRgbStatus){
-        
+
         if(currentColor[0] == colorWinner[0]&&currentColor[1] == colorWinner[1]&&currentColor[2] == colorWinner[2]){
           // Serial.println("Ganaste");
           puzzle1LedRgbStatus = false;
@@ -263,7 +287,7 @@ void loop() {
       /*--------------------------- cortar cables ----------------------------------*/
       cortarCables();
       break;
-    
+      /*--------------------------- cortar cables ----------------------------------*/
     default:
       break;
     }
@@ -536,29 +560,53 @@ void setColorByIndex(int index) {
 
 /*--------------------------- cortar cables ----------------------------------*/
 
-void cortarCables() { // TODO: Cambiar los output serial por el display, agregar dificultades, restar vidas
-
+void cortarCables() { // TODO: Agregar dificultades
+  // Se elige un modo al azar y se toma en cuenta los pasos a seguir
   int pinEsperado = ordenCorrecto[valorRandom][pasoActual];
 
-  if (digitalRead(pinEsperado) == LOW) {
-    // Serial.println("Cable correcto cortado");
+  // Cable correcto
+  if (digitalRead(pinEsperado) == HIGH) {
     cableCortado[pasoActual] = true;
     pasoActual++; // Actualizo el contador
+    
+    // Luz verde indica corte correcto
+    digitalWrite(redPin, LOW);
+    digitalWrite(greenPin, HIGH);
+    digitalWrite(bluePin, LOW);
 
+    delay(500); // TODO: Cambiar por millis
+
+    // Luz azul indica que esta a la espera del usuario
+    digitalWrite(redPin, LOW);
+    digitalWrite(greenPin, LOW);
+    digitalWrite(bluePin, HIGH);
+
+    // Checkea si el usuario gano
     if (pasoActual == 4) {
-      // Serial.println("Bomba desactivada!");
+      digitalLCD.clear();
+      digitalLCD.setCursor(0,0);
+      digitalLCD.print("Desactivada!");
+      
+      // Luz verde
+      digitalWrite(redPin, LOW);
+      digitalWrite(greenPin, HIGH);
+      digitalWrite(bluePin, LOW);
       while (true) {/* nada */}
     }
-
-    delay(200); // Para evitar doble lectura
   }
 
   // Reviso si se corto un cable fuera de orden
   for (int i = 0; i < 4; i++) {
     int pin = ordenCorrecto[valorRandom][i];
-    if (i != pasoActual && !cableCortado[i] && digitalRead(pin) == LOW) {
-    	// Serial.println("nt"); // Mensaje cuando explota
-  		digitalWrite(LED_PIN, HIGH);
+    if (i != pasoActual && !cableCortado[i] && digitalRead(pin) == HIGH) {
+    	digitalLCD.clear();
+      digitalLCD.setCursor(0,0);
+      digitalLCD.print("nt"); // Mensaje cuando explota
+  		
+      // Luz roja
+      digitalWrite(redPin, HIGH);
+      digitalWrite(greenPin, LOW);
+      digitalWrite(bluePin, LOW);
   		while (true) {/* nada */}
     }
   }
