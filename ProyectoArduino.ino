@@ -49,6 +49,7 @@ GameState gameState = SHOW_SEQUENCE;
 const int MAX_SEQUENCE = 100;
 int sequence[MAX_SEQUENCE];
 int sequenceLength = 0;
+int sequenceLengthMax = 8;
 int playerIndex = 0;
 
 unsigned long lastActionTime = 0;
@@ -260,7 +261,7 @@ void loop() {
     case 1:
       
       //---------------------------simon dice----------------------------------
-      if (sequenceLength < 9) { // Si el largo de la secuencia alcanza 8, se pasa al siguiente puzzle
+      if (sequenceLength <= sequenceLengthMax) { // Si el largo de la secuencia alcanza el numero maximo se pasa al siguiente puzzle
         switch (gameState) {
           case SHOW_SEQUENCE:
             showSequence();
