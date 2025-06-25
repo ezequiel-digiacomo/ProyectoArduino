@@ -195,7 +195,8 @@ void loop() {
     switch (contadorJuegos)
     {
     case 0:
-      //---------------------------rgb 1 boton----------------------------------
+    /*
+    //---------------------------rgb 1 boton----------------------------------
       unsigned long auxCurrentMillis = actualMillis;
       if(aux){
         auxPreviousMillis = auxCurrentMillis;
@@ -226,8 +227,10 @@ void loop() {
       }
         if(currentColor[0] == colorWinner[0]&&currentColor[1] == colorWinner[1]&&currentColor[2] == colorWinner[2]){
           // Serial.println("Ganaste");
+          
         }else{
           // Serial.println("Perdiste");
+          
         }
       }else{
         if(puzzle1LedRgbStatus){
@@ -235,7 +238,7 @@ void loop() {
         if(currentColor[0] == colorWinner[0]&&currentColor[1] == colorWinner[1]&&currentColor[2] == colorWinner[2]){
           // Serial.println("Ganaste");
           puzzle1LedRgbStatus = false;
-          contadorJuegos++;
+          
         }else{
           // Serial.println("Perdiste");
           analogWrite(redPin, 0);
@@ -243,40 +246,49 @@ void loop() {
           analogWrite(bluePin, 0);
           vidas--;
           puzzle1LedRgbStatus = false;
+          
+
         }
         }
       }
       }
       //---------------------------rgb 1 boton----------------------------------
+      */
+      contadorJuegos++;
       break;
     
     case 1:
+      
       //---------------------------simon dice----------------------------------
-      switch (gameState) {
-        case SHOW_SEQUENCE:
-          showSequence();
-          break;
-        case WAIT_INPUT:
-          readPlayerInput();
-          break;
-        case WAIT_SUCCESS_MELODY:
-          waitSuccessMelody();
-          break;
-        case PLAY_SUCCESS_MELODY:
-          playSuccessMelody();
-          break;
-        case LOSE:
-          handleErrorSound();
-          break;
-        case PAUSE_BEFORE_NEXT:
-          if (millis() - lastActionTime >= 800) {
-            startNewRound();
+      if (sequenceLength < 9) { // Si el largo de la secuencia alcanza 8, se pasa al siguiente puzzle
+        switch (gameState) {
+          case SHOW_SEQUENCE:
+            showSequence();
+            break;
+          case WAIT_INPUT:
+            readPlayerInput();
+            break;
+          case WAIT_SUCCESS_MELODY:
+            waitSuccessMelody();
+            break;
+          case PLAY_SUCCESS_MELODY:
+            playSuccessMelody();
+            break;
+          case LOSE:
+            handleErrorSound();
+            break;
+          case PAUSE_BEFORE_NEXT:
+            if (millis() - lastActionTime >= 800) {
+              startNewRound();
+            }
+            break;
           }
-          break;
+      }else{
+          contadorJuegos++;
       }
-      contadorJuegos++;
       //---------------------------simon dice----------------------------------
-    
+      break;
+      
     case 2:
       /*--------------------------- cortar cables ----------------------------------*/
       cortarCables();
