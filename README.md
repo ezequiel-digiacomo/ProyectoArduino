@@ -26,7 +26,7 @@ Suerte! No explotes 😊
 
 📄 **Consigna Proyecto Final:**  [Ver PDF](https://campusvirtualecyt.unsam.edu.ar/pluginfile.php/335293/mod_resource/content/1/Consigna%20Proyecto%20Final.pdf)
 
-🧪 **Simulador del Proyecto:**  [Ver Simulador](https://wokwi.com/projects/433587610014541825)
+🧪 **Simulador del Proyecto:**  [Ver Simulador](https://wokwi.com/projects/434159251087922177)
 
 ![Esquema del proyecto Arduino](images/EsquemaProyectoArduino.png)
 
