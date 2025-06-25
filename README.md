@@ -23,6 +23,7 @@ Suerte! No explotes 😊
 - [Demasiados] Cables 
 
 ## 🔗 Enlaces Útiles
+📋 **Wikipedia del Juego** [Ver Wiki](https://github.com/ezequiel-digiacomo/ProyectoArduino/wiki)
 
 📄 **Consigna Proyecto Final:**  [Ver PDF](https://campusvirtualecyt.unsam.edu.ar/pluginfile.php/335293/mod_resource/content/1/Consigna%20Proyecto%20Final.pdf)
 
