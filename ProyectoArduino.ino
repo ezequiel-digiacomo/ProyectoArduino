@@ -107,9 +107,9 @@ byte corazon[8] = {
 #define CABLE_3 6
 
 // LED RGB
-#define redPin 9
-#define greenPin 10
-#define bluePin 11
+#define LED_R 9
+#define LED_G 10
+#define LED_B 11
 
 // Variables
 long valorRandom;
@@ -118,11 +118,12 @@ int pasoActual = 0;
 
 // Casos posibles - orden esperado de los cables
 int ordenCorrecto[4][4] = {
-  {CABLE_0, CABLE_1, CABLE_2, CABLE_3}, // caso 0
-  {CABLE_1, CABLE_3, CABLE_0, CABLE_2}, // caso 1
-  {CABLE_3, CABLE_0, CABLE_2, CABLE_1}, // caso 2
-  {CABLE_2, CABLE_0, CABLE_1, CABLE_3}  // caso 3
+  {CABLE_0, CABLE_1, CABLE_2, CABLE_3}, // codigo 0
+  {CABLE_1, CABLE_3, CABLE_0, CABLE_2}, // codigo 1
+  {CABLE_3, CABLE_0, CABLE_2, CABLE_1}, // codigo 2
+  {CABLE_2, CABLE_0, CABLE_1, CABLE_3}  // codigo 3
 };
+
 
 /*--------------------------- cortar cables ----------------------------------*/
 
@@ -567,9 +568,12 @@ void setColorByIndex(int index) {
 
 /*--------------------------- cortar cables ----------------------------------*/
 
-void cortarCables() { // TODO: Agregar dificultades
-  // Se elige un modo al azar y se toma en cuenta los pasos a seguir
-  int pinEsperado = ordenCorrecto[valorRandom][pasoActual];
+void cortarCables() {
+  // Cambio de dificultad
+  int cantidadCables = 4; // Maximo 4, minimo 1
+  
+  // Se elige un codigo al azar y se toma en cuenta los pasos a seguir
+  int cableEsperado = ordenCorrecto[valorRandom][pasoActual];
 
   // Muestro el valor random en el LCD
   digitalLCD.setCursor(0,1);
@@ -578,49 +582,71 @@ void cortarCables() { // TODO: Agregar dificultades
   digitalLCD.print(valorRandom);
 
   // Cable correcto
-  if (digitalRead(pinEsperado) == HIGH) {
+  if (digitalRead(cableEsperado) == HIGH) {
     cableCortado[pasoActual] = true;
     pasoActual++; // Actualizo el contador
     
     // Luz verde indica corte correcto
-    digitalWrite(redPin, LOW);
-    digitalWrite(greenPin, HIGH);
-    digitalWrite(bluePin, LOW);
-
-    delay(500); // TODO: Cambiar por millis
-
-    // Luz azul indica que esta a la espera del usuario
-    digitalWrite(redPin, LOW);
-    digitalWrite(greenPin, LOW);
-    digitalWrite(bluePin, HIGH);
-
+    luzVerde();
+    
     // Checkea si el usuario gano
-    if (pasoActual == 4) {
+    if (pasoActual == cantidadCables) {
       digitalLCD.clear();
       digitalLCD.setCursor(0,0);
       digitalLCD.print("Desactivada!");
       
-      // Luz verde
-      digitalWrite(redPin, LOW);
-      digitalWrite(greenPin, HIGH);
-      digitalWrite(bluePin, LOW);
-      while (true) {/* nada */}
+      while (true) {luzVerde();} // Ganaste!
     }
+    delay(500);
+    luzAzul();
   }
 
   // Reviso si se corto un cable fuera de orden
-  for (int i = 0; i < 4; i++) {
+  for (int i = 0; i < cantidadCables; i++) {
+    // Saco el pin del cable que deberia estar en la posición i
     int pin = ordenCorrecto[valorRandom][i];
+    
+    // Si NO es el paso actual, todavia no se corto y ahora esta cortado = error
     if (i != pasoActual && !cableCortado[i] && digitalRead(pin) == HIGH) {
     	digitalLCD.clear();
       digitalLCD.setCursor(0,0);
-      digitalLCD.print("nt"); // Mensaje cuando explota
+      digitalLCD.print("F"); // Mensaje cuando explota
   		
-      // Luz roja
-      digitalWrite(redPin, HIGH);
-      digitalWrite(greenPin, LOW);
-      digitalWrite(bluePin, LOW);
-  		while (true) {/* nada */}
+  		while (true) {luzRojaRespirando(); } // F en el chat
     }
+  }
+}
+
+// Funciones
+void luzRoja(){
+  digitalWrite(LED_R, HIGH);
+  digitalWrite(LED_G, LOW);
+  digitalWrite(LED_B, LOW);
+}
+
+void luzVerde(){
+  digitalWrite(LED_R, LOW);
+  digitalWrite(LED_G, HIGH);
+  digitalWrite(LED_B, LOW);
+}
+
+void luzAzul(){
+  digitalWrite(LED_R, LOW);
+  digitalWrite(LED_G, LOW);
+  digitalWrite(LED_B, HIGH);
+}
+
+void luzRojaRespirando() {
+  for (int i = 0; i < 256; i++) {
+    analogWrite(LED_R, i);     // Aumenta la intensidad
+    digitalWrite(LED_G, LOW);
+    digitalWrite(LED_B, LOW);
+    delay(5);                  // Controla la velocidad del encendido
+  }
+  for (int i = 255; i >= 0; i--) {
+    analogWrite(LED_R, i);     // Disminuye la intensidad
+    digitalWrite(LED_G, LOW);
+    digitalWrite(LED_B, LOW);
+    delay(5);                  // Controla la velocidad del apagado
   }
 }
