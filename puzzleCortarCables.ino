@@ -10,9 +10,9 @@
 #define CABLE_3 6
 
 // LED RGB
-#define redPin 9
-#define greenPin 10
-#define bluePin 11
+#define LED_R 9
+#define LED_G 10
+#define LED_B 11
 
 // aliasLCD
 LiquidCrystal_I2C digitalLCD(0x27, 16, 2);
@@ -22,7 +22,7 @@ long valorRandom;
 bool cableCortado[4] = {false, false, false, false};
 int pasoActual = 0;
 
-// Casos posibles
+// Casos posibles - orden esperado de los cables
 int ordenCorrecto[4][4] = {
   {CABLE_0, CABLE_1, CABLE_2, CABLE_3}, // caso 0
   {CABLE_1, CABLE_3, CABLE_0, CABLE_2}, // caso 1
@@ -48,9 +48,9 @@ void setup() {
   pinMode(CABLE_3, INPUT_PULLUP);
 
   // LED RGB como salida
-  pinMode(redPin, OUTPUT);
-  pinMode(greenPin, OUTPUT);
-  pinMode(bluePin, OUTPUT);
+  pinMode(LED_R, OUTPUT);
+  pinMode(LED_G, OUTPUT);
+  pinMode(LED_B, OUTPUT);
 
   // https://docs.arduino.cc/language-reference/en/functions/random-numbers/random/
   randomSeed(analogRead(0)); // Si el pin analógico 0 está desconectado, el ruido hace que randomSeed() genere números random
@@ -63,12 +63,12 @@ void setup() {
   digitalLCD.print(valorRandom);
 
   // Luz azul indica que esta a la espera del usuario
-  digitalWrite(redPin, LOW);
-  digitalWrite(greenPin, LOW);
-  digitalWrite(bluePin, HIGH);
+  luzAzul();
 }
 
+
 void loop() {
+  // Se elige un modo al azar y se toma en cuenta los pasos a seguir
   int pinEsperado = ordenCorrecto[valorRandom][pasoActual];
 
   // Cable correcto
@@ -77,29 +77,21 @@ void loop() {
     pasoActual++; // Actualizo el contador
     
     // Luz verde indica corte correcto
-    digitalWrite(redPin, LOW);
-    digitalWrite(greenPin, HIGH);
-    digitalWrite(bluePin, LOW);
-
-    delay(500); // TODO: Cambiar por millis
-
-    // Luz azul indica que esta a la espera del usuario
-    digitalWrite(redPin, LOW);
-    digitalWrite(greenPin, LOW);
-    digitalWrite(bluePin, HIGH);
-
+    luzVerde();
+    
     // Checkea si el usuario gano
     if (pasoActual == 4) {
       digitalLCD.clear();
       digitalLCD.setCursor(0,0);
       digitalLCD.print("Desactivada!");
       
-      // Luz verde
-      digitalWrite(redPin, LOW);
-      digitalWrite(greenPin, HIGH);
-      digitalWrite(bluePin, LOW);
+      luzVerde(); // Ganaste!
       while (true) {/* nada */}
     }
+
+    delay(500); // TODO: Cambiar por millis?
+    
+    luzAzul();
   }
 
   // Reviso si se corto un cable fuera de orden
@@ -110,11 +102,27 @@ void loop() {
       digitalLCD.setCursor(0,0);
       digitalLCD.print("nt"); // Mensaje cuando explota
   		
-      // Luz roja
-      digitalWrite(redPin, HIGH);
-      digitalWrite(greenPin, LOW);
-      digitalWrite(bluePin, LOW);
+      luzRoja(); // Indica boom
   		while (true) {/* nada */}
     }
   }
+}
+
+// Funciones
+void luzRoja(){
+  digitalWrite(LED_R, HIGH);
+  digitalWrite(LED_G, LOW);
+  digitalWrite(LED_B, LOW);
+}
+
+void luzVerde(){
+  digitalWrite(LED_R, LOW);
+  digitalWrite(LED_G, HIGH);
+  digitalWrite(LED_B, LOW);
+}
+
+void luzAzul(){
+  digitalWrite(LED_R, LOW);
+  digitalWrite(LED_G, LOW);
+  digitalWrite(LED_B, HIGH);
 }
